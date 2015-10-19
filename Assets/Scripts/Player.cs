@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Player.
 /// </summary>
-public class Player : Token 
+public class Player : Token
 {
 	// ゲーム状態
 	public enum eGameState
@@ -74,9 +74,31 @@ public class Player : Token
 	/// </summary>
 	void Update()
 	{
-		// 左右キーで移動する
+		// 着地チェック
+		_bGround = CheckGround ();
+
 		Vector2 v = Util.GetInputVector ();
-		VX = v.x * _RunSpeed;
+
+		// 左右キーで移動する
+//		if ( (v.y * v.y) > 1.0f)
+		if (!( (v.y * v.y) < 0.1f))
+//		if (v.y != 0.0f)
+		{
+			// 下キー
+			VX = 0.0f;
+		}
+		else
+		if (_bGround)
+		{
+			// 接地中
+			VX = v.x * _RunSpeed;
+		}
+		else
+		if (( v.x * _RunSpeed ) * ( v.x * _RunSpeed ) >= 1.0f)
+		{
+			// 空中
+			VX = v.x * _RunSpeed;
+		}
 
 		// 向いている方向チェック
 		if (VX <= -1.0f)
@@ -89,9 +111,6 @@ public class Player : Token
 			// 右を向く
 			_bFacingLeft = false;
 		}
-		// 着地チェック
-		_bGround = CheckGround ();
-
 		// ジャンプ判定
 		if ( Input.GetKeyDown(KeyCode.Space) )
 		{
@@ -121,7 +140,7 @@ public class Player : Token
 		foreach (float px in xList) {
 			// チェック実行.
 			RaycastHit2D hit = Physics2D.Raycast(new Vector2 (px, Y), -Vector2.up, distance, mask);
-			
+
 			if ( hit.collider != null )
 			{
 				// 着地できた
